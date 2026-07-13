@@ -175,7 +175,7 @@ Irrigation - Notification anomalie
 
 ---
 
-# 2. Modification de configuration.yaml
+## 2. Modification de configuration.yaml
 
 Nous utiliserons les includes natifs :
 
@@ -191,11 +191,11 @@ input_number: !include helpers.yaml
 
 ---
 
-# 3. Entités matérielles utilisées
+## 3. Entités matérielles utilisées
 
 On fige :
 
-## Master
+### Master
 
 ```yaml
 valve.arroseur_devant_valve
@@ -209,7 +209,7 @@ number.arroseur_devant_irrigation_duration
 
 ---
 
-## Pelouse
+### Pelouse
 
 Commande :
 
@@ -225,7 +225,7 @@ number.valve_jardin_countdown_pelouse
 
 ---
 
-## Massif
+### Massif
 
 Commande :
 
@@ -241,9 +241,9 @@ number.valve_jardin_countdown_massif
 
 ---
 
-# 4. Séquence hydraulique finale
+## 4. Séquence hydraulique finale
 
-## Ouverture
+### Ouverture
 
 ```text
 1. Programmer countdown zone
@@ -255,7 +255,7 @@ number.valve_jardin_countdown_massif
 
 ---
 
-## Fermeture normale
+### Fermeture normale
 
 ```text
 1. Fermer Master
@@ -265,7 +265,7 @@ number.valve_jardin_countdown_massif
 
 ---
 
-## Arrêt sécurité
+### Arrêt sécurité
 
 ```text
 1. Fermer Master immédiatement
