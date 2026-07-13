@@ -193,8 +193,6 @@ input_number: !include helpers.yaml
 
 ## 3. Entités matérielles utilisées
 
-On fige :
-
 ### Master
 
 ```yaml
