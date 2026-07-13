@@ -1,0 +1,10 @@
+input_select:
+  irrigation_mode:
+    name: Irrigation - Mode
+    options:
+      - Auto
+      - Manuel
+      - Maintenance
+      - Hiver
+    icon: mdi:sprinkler-variant
+    

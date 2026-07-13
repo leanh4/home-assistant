@@ -1,0 +1,242 @@
+##################################################
+# IRRIGATION - Capteurs calculés
+##################################################
+
+- sensor:
+
+
+    ##################################################
+    # Etat global irrigation
+    ##################################################
+
+    - name: Irrigation Status
+
+      unique_id: irrigation_status
+
+      icon: mdi:sprinkler-variant
+
+      state: >
+
+        {% set master =
+             states('valve.arroseur_devant_valve') %}
+
+        {% set pelouse =
+             states('switch.valve_pelouse') %}
+
+        {% set massif =
+             states('switch.valve_massif') %}
+
+
+        {% if master in ['unknown','unavailable']
+              or pelouse in ['unknown','unavailable']
+              or massif in ['unknown','unavailable'] %}
+
+          ERREUR_COMMUNICATION
+
+
+        {% elif master == 'open'
+              and pelouse == 'off'
+              and massif == 'off' %}
+
+          SECURITE_MASTER_SEULE
+
+
+        {% elif master == 'closed'
+              and (pelouse == 'on'
+                   or massif == 'on') %}
+
+          MASTER_FERME_ZONE_ACTIVE
+
+
+        {% elif pelouse == 'on'
+              or massif == 'on' %}
+
+          ARROSAGE
+
+
+        {% else %}
+
+          REPOS
+
+        {% endif %}
+
+
+
+
+    ##################################################
+    # Zones actuellement ouvertes
+    ##################################################
+
+    - name: Irrigation Active Zones
+
+      unique_id: irrigation_active_zones
+
+      icon: mdi:map-marker-path
+
+      state: >
+
+        {% set zones = namespace(value=[]) %}
+
+
+        {% if is_state('switch.valve_pelouse','on') %}
+
+          {% set zones.value =
+             zones.value + ['Pelouse'] %}
+
+        {% endif %}
+
+
+        {% if is_state('switch.valve_massif','on') %}
+
+          {% set zones.value =
+             zones.value + ['Massif'] %}
+
+        {% endif %}
+
+
+        {% if zones.value | length > 0 %}
+
+          {{ zones.value | join(', ') }}
+
+        {% else %}
+
+          Aucune
+
+        {% endif %}
+
+
+
+
+    ##################################################
+    # Countdown Pelouse
+    ##################################################
+
+    - name: Irrigation Pelouse Remaining
+
+      unique_id: irrigation_pelouse_remaining
+
+      unit_of_measurement: min
+
+      icon: mdi:timer-outline
+
+      state: >
+
+        {{ states(
+        'number.valve_jardin_countdown_pelouse'
+        ) | int(0) }}
+
+
+
+
+    ##################################################
+    # Countdown Massif
+    ##################################################
+
+    - name: Irrigation Massif Remaining
+
+      unique_id: irrigation_massif_remaining
+
+      unit_of_measurement: min
+
+      icon: mdi:timer-outline
+
+      state: >
+
+        {{ states(
+        'number.valve_jardin_countdown_massif'
+        ) | int(0) }}
+
+
+
+
+    ##################################################
+    # Temps ouverture Master
+    ##################################################
+
+    - name: Irrigation Master Runtime
+
+      unique_id: irrigation_master_runtime
+
+      unit_of_measurement: min
+
+      icon: mdi:timer-alert
+
+
+      state: >
+
+        {% if is_state(
+          'valve.arroseur_devant_valve',
+          'open'
+        ) %}
+
+          {{ 
+          ((as_timestamp(now())
+          -
+          as_timestamp(
+          states.valve.arroseur_devant_valve.last_changed
+          ))
+          /60)
+          | round(0)
+          }}
+
+        {% else %}
+
+          0
+
+        {% endif %}
+
+
+
+
+    ##################################################
+    # Santé système
+    ##################################################
+
+    - name: Irrigation Health
+
+      unique_id: irrigation_health
+
+      unit_of_measurement: "%"
+
+      icon: mdi:shield-check
+
+
+      state: >
+
+        {% set score = namespace(value=100) %}
+
+
+        {% if states(
+          'valve.arroseur_devant_valve'
+          )
+          in ['unknown','unavailable'] %}
+
+          {% set score.value =
+             score.value - 40 %}
+
+        {% endif %}
+
+
+        {% if states(
+          'switch.valve_pelouse'
+          )
+          in ['unknown','unavailable'] %}
+
+          {% set score.value =
+             score.value - 30 %}
+
+        {% endif %}
+
+
+        {% if states(
+          'switch.valve_massif'
+          )
+          in ['unknown','unavailable'] %}
+
+          {% set score.value =
+             score.value - 30 %}
+
+        {% endif %}
+
+
+        {{ score.value }}

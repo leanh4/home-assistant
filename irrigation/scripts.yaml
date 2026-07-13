@@ -1,0 +1,585 @@
+##################################################
+# IRRIGATION - Scripts moteur hydraulique
+##################################################
+
+
+##################################################
+# Ouvrir une zone
+#
+# Séquence :
+# 1 - Programmer countdown TS0601
+# 2 - Ouvrir zone
+# 3 - Attendre stabilisation
+# 4 - Ouvrir Master
+##################################################
+
+irrigation_start_zone:
+
+  alias: "Irrigation - Démarrer zone"
+
+  mode: queued
+
+
+  fields:
+
+    zone:
+
+      name: Zone
+
+      description: "pelouse ou massif"
+
+
+
+  variables:
+
+
+    zone_duration: >
+
+      {% if zone == 'pelouse' %}
+
+        {{ states(
+        'input_number.irrigation_pelouse_duration'
+        ) | int }}
+
+      {% else %}
+
+        {{ states(
+        'input_number.irrigation_massif_duration'
+        ) | int }}
+
+      {% endif %}
+
+
+
+  sequence:
+
+
+    ##################################################
+    # Programmation countdown zone
+    ##################################################
+
+    - choose:
+
+
+        - conditions:
+
+            - condition: template
+
+              value_template: "{{ zone == 'pelouse' }}"
+
+
+          sequence:
+
+            - action: number.set_value
+
+              target:
+
+                entity_id:
+                  number.valve_jardin_countdown_pelouse
+
+              data:
+
+                value: "{{ zone_duration }}"
+
+
+
+        - conditions:
+
+            - condition: template
+
+              value_template: "{{ zone == 'massif' }}"
+
+
+          sequence:
+
+            - action: number.set_value
+
+              target:
+
+                entity_id:
+                  number.valve_jardin_countdown_massif
+
+              data:
+
+                value: "{{ zone_duration }}"
+
+
+
+
+    ##################################################
+    # Ouverture zone
+    ##################################################
+
+    - choose:
+
+
+        - conditions:
+
+            - condition: template
+
+              value_template: "{{ zone == 'pelouse' }}"
+
+
+          sequence:
+
+            - action: switch.turn_on
+
+              target:
+
+                entity_id:
+                  switch.valve_pelouse
+
+
+
+        - conditions:
+
+            - condition: template
+
+              value_template: "{{ zone == 'massif' }}"
+
+
+          sequence:
+
+            - action: switch.turn_on
+
+              target:
+
+                entity_id:
+                  switch.valve_massif
+
+
+
+
+    ##################################################
+    # Attente hydraulique
+    ##################################################
+
+    - delay:
+
+        seconds:
+
+          "{{ states(
+          'input_number.irrigation_open_delay'
+          ) | int }}"
+
+
+
+    ##################################################
+    # Ouverture Master
+    ##################################################
+
+    - action: valve.open_valve
+
+      target:
+
+        entity_id:
+
+          valve.arroseur_devant_valve
+
+
+
+
+    ##################################################
+    # Configuration sécurité Master
+    #
+    # Zone 48 min + marge 5 min
+    ##################################################
+
+    - action: number.set_value
+
+      target:
+
+        entity_id:
+
+          number.arroseur_devant_irrigation_duration
+
+
+      data:
+
+        value: >
+
+          {{
+          (
+          (zone_duration
+          +
+          states(
+          'input_number.irrigation_master_safety_margin'
+          )
+          | int)
+          * 60
+          )
+          }}
+
+##################################################
+# Arrêt normal d'une zone
+##################################################
+
+irrigation_stop_zone:
+
+  alias: "Irrigation - Arrêter zone"
+
+  mode: queued
+
+
+  fields:
+
+    zone:
+
+      name: Zone
+
+
+
+  sequence:
+
+
+    ##################################################
+    # Vérifier si une autre zone fonctionne
+    ##################################################
+
+    - choose:
+
+
+        #
+        # Une autre zone continue
+        #
+
+        - conditions:
+
+            - condition: template
+
+              value_template: >
+
+                {{
+                (zone == 'pelouse'
+                and
+                is_state(
+                'switch.valve_massif',
+                'on'))
+
+                or
+
+                (zone == 'massif'
+                and
+                is_state(
+                'switch.valve_pelouse',
+                'on'))
+                }}
+
+
+          sequence:
+
+
+            - choose:
+
+
+                - conditions:
+
+                    - condition: template
+
+                      value_template:
+                        "{{ zone == 'pelouse' }}"
+
+
+                  sequence:
+
+                    - action: switch.turn_off
+
+                      target:
+
+                        entity_id:
+                          switch.valve_pelouse
+
+
+
+                - conditions:
+
+                    - condition: template
+
+                      value_template:
+                        "{{ zone == 'massif' }}"
+
+
+                  sequence:
+
+                    - action: switch.turn_off
+
+                      target:
+
+                        entity_id:
+                          switch.valve_massif
+
+
+
+
+      #
+      # Dernière zone active
+      #
+
+      default:
+
+
+        # 1 - fermer Master
+
+        - action: valve.close_valve
+
+          target:
+
+            entity_id:
+
+              valve.arroseur_devant_valve
+
+
+
+        # 2 - purge
+
+        - delay:
+
+            seconds:
+
+              "{{ states(
+              'input_number.irrigation_purge_delay'
+              ) | int }}"
+
+
+
+        # 3 - fermer zone
+
+        - choose:
+
+
+            - conditions:
+
+                - condition: template
+
+                  value_template:
+                    "{{ zone == 'pelouse' }}"
+
+
+              sequence:
+
+                - action: switch.turn_off
+
+                  target:
+
+                    entity_id:
+                      switch.valve_pelouse
+
+
+
+            - conditions:
+
+                - condition: template
+
+                  value_template:
+                    "{{ zone == 'massif' }}"
+
+
+              sequence:
+
+                - action: switch.turn_off
+
+                  target:
+
+                    entity_id:
+                      switch.valve_massif
+
+
+##################################################
+# IRRIGATION - Arrêt sécurité complet
+##################################################
+
+irrigation_emergency_stop:
+
+  alias: "Irrigation - Arrêt sécurité"
+
+  mode: restart
+
+
+  sequence:
+
+
+    # 1 - Fermeture Master
+
+    - action: valve.close_valve
+
+      target:
+
+        entity_id:
+
+          valve.arroseur_devant_valve
+
+
+
+    # 2 - Purge hydraulique
+
+    - delay:
+
+        seconds:
+
+          "{{ states(
+          'input_number.irrigation_purge_delay'
+          ) | int }}"
+
+
+
+    # 3 - Fermeture Pelouse
+
+    - action: switch.turn_off
+
+      target:
+
+        entity_id:
+
+          switch.valve_pelouse
+
+
+
+    # 4 - Fermeture Massif
+
+    - action: switch.turn_off
+
+      target:
+
+        entity_id:
+
+          switch.valve_massif
+
+
+
+    # 5 - Reset countdowns
+
+    - action: number.set_value
+
+      target:
+
+        entity_id:
+
+          - number.valve_jardin_countdown_pelouse
+          - number.valve_jardin_countdown_massif
+
+      data:
+
+        value: 0
+
+
+
+    # 6 - Notification
+
+    - action: notify.notify
+
+      data:
+
+        title: "🚨 Irrigation - Sécurité"
+
+        message: >
+
+          Arrêt sécurité irrigation effectué.
+
+          Cause :
+          {{ trigger.id | default('manuel') }}
+
+
+##################################################
+# IRRIGATION - Synchronisation hydraulique
+##################################################
+
+irrigation_sync_hydraulic:
+
+  alias: "Irrigation - Synchroniser hydraulique"
+
+  mode: queued
+
+
+  sequence:
+
+
+    ##################################################
+    # Master ouverte seule
+    ##################################################
+
+    - if:
+
+        - condition: state
+
+          entity_id:
+
+            valve.arroseur_devant_valve
+
+          state: "open"
+
+
+        - condition: state
+
+          entity_id:
+
+            switch.valve_pelouse
+
+          state: "off"
+
+
+        - condition: state
+
+          entity_id:
+
+            switch.valve_massif
+
+          state: "off"
+
+
+
+      then:
+
+
+        - action: switch.turn_on
+
+          target:
+
+            entity_id:
+
+              switch.valve_massif
+
+
+
+    ##################################################
+    # Zone ouverte sans Master
+    ##################################################
+
+    - if:
+
+
+        - condition: template
+
+          value_template: >
+
+            {{
+            is_state(
+            'valve.arroseur_devant_valve',
+            'closed'
+            )
+            and
+
+            (
+            is_state(
+            'switch.valve_pelouse',
+            'on'
+            )
+            or
+
+            is_state(
+            'switch.valve_massif',
+            'on'
+            )
+            )
+            }}
+
+
+      then:
+
+
+        - action: valve.open_valve
+
+          target:
+
+            entity_id:
+
+              valve.arroseur_devant_valve

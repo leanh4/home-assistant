@@ -1,0 +1,164 @@
+##################################################
+# IRRIGATION - Paramètres utilisateur
+##################################################
+
+
+##################################################
+# Durées d'arrosage des zones
+# Utilisées pour programmer les countdown Zigbee
+##################################################
+
+irrigation_pelouse_duration:
+
+  name: Irrigation - Durée Pelouse
+
+  min: 1
+
+  max: 240
+
+  step: 1
+
+  unit_of_measurement: min
+
+  mode: box
+
+  icon: mdi:grass
+
+
+
+irrigation_massif_duration:
+
+  name: Irrigation - Durée Massif
+
+  min: 1
+
+  max: 240
+
+  step: 1
+
+  unit_of_measurement: min
+
+  mode: box
+
+  icon: mdi:flower
+
+
+
+##################################################
+# Temporisation hydraulique
+##################################################
+
+
+irrigation_open_delay:
+
+  name: Irrigation - Délai ouverture Master
+
+  min: 0
+
+  max: 10
+
+  step: 1
+
+  unit_of_measurement: sec
+
+  mode: box
+
+  initial: 1
+
+  icon: mdi:timer-play
+
+
+
+irrigation_purge_delay:
+
+  name: Irrigation - Délai purge hydraulique
+
+  min: 1
+
+  max: 30
+
+  step: 1
+
+  unit_of_measurement: sec
+
+  mode: box
+
+  initial: 3
+
+  icon: mdi:water-off
+
+
+
+##################################################
+# Sécurité Master
+##################################################
+
+
+irrigation_master_timeout:
+
+  name: Irrigation - Temps maximum Master ouverte
+
+  min: 10
+
+  max: 180
+
+  step: 5
+
+  unit_of_measurement: min
+
+  mode: box
+
+  initial: 60
+
+  icon: mdi:timer-alert
+
+
+
+irrigation_master_safety_margin:
+
+  name: Irrigation - Marge sécurité Master
+
+  min: 0
+
+  max: 30
+
+  step: 1
+
+  unit_of_measurement: min
+
+  mode: box
+
+  initial: 5
+
+  icon: mdi:shield-check
+
+
+
+##################################################
+# Watchdog
+##################################################
+
+
+irrigation_watchdog_interval:
+
+  name: Irrigation - Intervalle Watchdog
+
+  min: 5
+
+  max: 300
+
+  step: 5
+
+  unit_of_measurement: sec
+
+  mode: box
+
+  initial: 10
+
+  icon: mdi:eye-check
+
+
+
+##################################################
+# Mode fonctionnement
+##################################################
