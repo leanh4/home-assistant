@@ -25,9 +25,9 @@ Le système doit :
 
 ---
 
-# 2. Matériel
+## 2. Matériel
 
-## Master
+### Master
 C'est un appareil de type Valve Controller (1fcnd8xk) intégré par Tuya
 
 ```
@@ -50,7 +50,7 @@ close_valve
 
 ---
 
-## Vannes en aval - 2 Zones: 
+### Vannes en aval - 2 Zones: 
 Appareil TS0601 intégré avec zigbee2mqtt qui gère deux vannes
 Type :
 
@@ -58,7 +58,7 @@ Type :
 Switch
 ```
 
-### Zone Pelouse
+#### Zone Pelouse
 
 ```
 switch.valve_pelouse
@@ -68,7 +68,7 @@ switch.valve_pelouse
 
 ---
 
-### Zone Massif
+#### Zone Massif
 
 ```
 switch.valve_massif
@@ -76,7 +76,7 @@ switch.valve_massif
 
 ---
 
-# 3. Etats du contrôleur
+## 3. Etats du contrôleur
 
 ```
 IDLE
@@ -134,7 +134,7 @@ Mode manuel.
 
 ---
 
-# 4. Etats des zones
+## 4. Etats des zones
 
 Chaque zone possède :
 
@@ -152,7 +152,7 @@ ERROR
 
 ---
 
-# 5. Séquence d'ouverture
+## 5. Séquence d'ouverture
 
 ```
 Utilisateur
@@ -180,7 +180,7 @@ RUNNING
 
 ---
 
-# 6. Séquence d'arrêt
+## 6. Séquence d'arrêt
 
 ```
 Fin timer
@@ -204,7 +204,7 @@ IDLE
 
 ---
 
-# 7. Si une autre zone est encore active
+## 7. Si une autre zone est encore active
 
 ```
 Pelouse OFF
@@ -220,7 +220,7 @@ Master reste ON
 
 ---
 
-# 8. Si Master ouverte seule
+## 8. Si Master ouverte seule
 
 ```
 Master ON
@@ -238,7 +238,7 @@ Protection hydraulique.
 
 ---
 
-# 9. Si zone ouverte sans Master
+## 9. Si zone ouverte sans Master
 
 ```
 Pelouse ON
@@ -254,7 +254,7 @@ ouvrir Master
 
 ---
 
-# 10. Watchdog
+## 10. Watchdog
 
 Toutes les 10 secondes.
 
@@ -276,7 +276,7 @@ Contrôle :
 
 ---
 
-# 11. Health Monitor
+## 11. Health Monitor
 
 Le système calcule :
 
@@ -300,7 +300,7 @@ selon le nombre d'erreurs.
 
 ---
 
-# 12. Notifications
+## 12. Notifications
 
 Au minimum :
 
@@ -320,11 +320,11 @@ Temps dépassé
 
 ---
 
-# 13. Dashboard
+## 13. Dashboard
 
 Deux vues.
 
-## Exploitation
+### Exploitation
 
 ```
 Master
@@ -342,7 +342,7 @@ START
 
 ---
 
-## Diagnostic
+### Diagnostic
 
 ```
 Historique
@@ -360,7 +360,7 @@ Journal
 
 ---
 
-# 14. Paramètres
+## 14. Paramètres
 
 ```
 Durée Pelouse
@@ -380,7 +380,7 @@ Timeout Tuya
 
 ---
 
-# 15. Journalisation
+## 15. Journalisation
 
 Chaque transition est enregistrée.
 
@@ -406,7 +406,7 @@ IDLE
 
 ---
 
-# Extensibilité - Evolutivité
+## Extensibilité - Evolutivité
 Au lieu de coder les zones en dur (`Pelouse`, `Massif`), on va rendre le contrôleur **entièrement générique**.
 
 Par exemple, dans un helper (ou un fichier de configuration), on définirait simplement :
