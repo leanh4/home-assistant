@@ -3,7 +3,7 @@ v1.0
 
 
 
-# Organisation des fichiers
+## 0. Organisation des fichiers
 
 ```text
 /config
@@ -21,9 +21,9 @@ v1.0
 
 ---
 
-# 1. Rôle des fichiers
+## 1. Rôle des fichiers
 
-## `helpers.yaml`
+### `helpers.yaml`
 
 Contient uniquement les paramètres configurables dans l'UI :
 
@@ -45,7 +45,7 @@ Paramètres
 
 ---
 
-## `templates.yaml`
+### `templates.yaml`
 
 Contient les capteurs calculés :
 
@@ -98,7 +98,7 @@ Exemple :
 
 ---
 
-## `scripts.yaml`
+### `scripts.yaml`
 
 Tous les scripts seront visibles ici :
 
@@ -110,7 +110,7 @@ Paramètres
 
 Scripts prévus :
 
-### Commandes utilisateurs
+#### Commandes utilisateurs
 
 ```
 Irrigation - Démarrer zone
@@ -120,7 +120,7 @@ Irrigation - Arrêt complet
 
 ---
 
-### Sécurité
+#### Sécurité
 
 ```
 Irrigation - Fermeture sécurité Master
@@ -130,7 +130,7 @@ Irrigation - Réparer incohérence
 
 ---
 
-### Maintenance
+#### Maintenance
 
 ```
 Irrigation - Test Pelouse
@@ -140,11 +140,11 @@ Irrigation - Test Master
 
 ---
 
-## `automations.yaml`
+### `automations.yaml`
 
 Toutes les règles seront visibles dans l'interface :
 
-### Gestion normale
+#### Gestion normale
 
 ```
 Irrigation - Demande ouverture Pelouse
@@ -155,7 +155,7 @@ Irrigation - Fin countdown Massif
 
 ---
 
-### Sécurité
+#### Sécurité
 
 ```
 Irrigation - Master ouverte plus de 60 minutes
@@ -166,7 +166,7 @@ Irrigation - Zone ouverte sans Master
 
 ---
 
-### Surveillance
+#### Surveillance
 
 ```
 Irrigation - Watchdog toutes les 10 secondes
